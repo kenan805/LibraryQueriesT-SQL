@@ -1,4 +1,4 @@
-﻿-- 1. Display books with the minimum number of pages issued by a particular publishing house.
+-- 1. Display books with the minimum number of pages issued by a particular publishing house.
 -- Hər Publisherin ən az səhifəli kitabını ekrana çıxarın 
 SELECT Press.[Name] PressName, Books.*
 FROM Press INNER JOIN Books
