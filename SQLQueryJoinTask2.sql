@@ -1,4 +1,4 @@
-﻿-- 8. Display all visitors to the library (and students and teachers) and the books they took.
+-- 8. Display all visitors to the library (and students and teachers) and the books they took.
 -- Kitabxananın bütün ziyarətçilərini və onların götürdüyü kitabları çıxarın.
 SELECT Teachers.Id, Teachers.FirstName + Teachers.LastName AS LibraryVisitors, Books.[Name] AS BooksName 
 FROM ((Teachers INNER JOIN T_Cards ON T_Cards.Id_Teacher = Teachers.Id)
@@ -10,21 +10,21 @@ INNER JOIN Books ON S_Cards.Id_Book = Books.Id)
 
 -- 9. Print the most popular author (s) among students and the number of books of this author taken in the library.
 -- Studentlər arasında ən məşhur author(lar) və onun(ların) götürülmüş kitablarının sayını çıxarın.
-SELECT TOP 1 Authors.FirstName + Authors.LastName AuthorsFullName, COUNT(*)
+SELECT TOP(1) WITH TIES Authors.FirstName + Authors.LastName AuthorsFullName, COUNT(*) Popular
 FROM (((Students INNER JOIN S_Cards ON S_Cards.Id_Student = Students.Id)
 INNER JOIN Books ON S_Cards.Id_Book = Books.Id)
 INNER JOIN Authors ON Books.Id_Author = Authors.Id)
 GROUP BY Authors.FirstName + Authors.LastName
-ORDER BY COUNT(*) DESC
+ORDER BY Popular DESC
 
 -- 10. Print the most popular author (s) among the teachers and the number of books of this author taken in the library.
 -- Muellimler arasında ən məşhur author(lar) və onun(ların) götürülmüş kitablarının sayını çıxarın
-SELECT TOP 1 Authors.FirstName + Authors.LastName AuthorsFullName, COUNT(*)
+SELECT TOP(1) WITH TIES Authors.FirstName + Authors.LastName AuthorsFullName, COUNT(*) Popular
 FROM (((Teachers INNER JOIN T_Cards ON T_Cards.Id_Teacher = Teachers.Id)
 INNER JOIN Books ON T_Cards.Id_Book = Books.Id)
 INNER JOIN Authors ON Books.Id_Author = Authors.Id)
 GROUP BY Authors.FirstName + Authors.LastName
-ORDER BY COUNT(*) DESC
+ORDER BY Popular DESC
 
 -- 11. To deduce the most popular subjects (and) among students and teachers.
 --  Student və Teacherlər arasında ən məşhur mövzunu(ları) çıxarın.
@@ -79,7 +79,7 @@ ORDER BY COUNT(*) DESC
 
 -- 16. Display the names of the most popular books among teachers and students.
 -- Müəllim və Tələbələr arasında ən məşhur kitabların adlarını çıxarın.
-SELECT TOP 3 Books.[Name]
+SELECT TOP 1 WITH TIES Books.[Name]
 FROM ((((Students INNER JOIN S_Cards ON S_Cards.Id_Student = Students.Id)
 INNER JOIN Books ON S_Cards.Id_Book = Books.Id)
 INNER JOIN T_Cards ON T_Cards.Id_Book = Books.Id)
@@ -116,17 +116,18 @@ INNER JOIN Books ON S_Cards.Id_Book = Books.Id)) BooksCount
 FROM ((Teachers INNER JOIN T_Cards ON T_Cards.Id_Teacher = Teachers.Id)
 INNER JOIN Books ON T_Cards.Id_Book = Books.Id)
 
---? 20. Show how many books each librarian issued.
+-- 20. Show how many books each librarian issued.
 -- Hər kitabxanaçının (libs) neçə kitab verdiyini ekrana çıxarın
-SELECT Libs.FirstName + Libs.LastName,COUNT(*)
-FROM ((Libs INNER JOIN S_Cards ON S_Cards.Id_Lib = Libs.Id)
-INNER JOIN Books ON S_Cards.Id_Book = Books.Id)
-GROUP BY Libs.FirstName + Libs.LastName
-
-SELECT Libs.FirstName + Libs.LastName, COUNT(*)
-FROM ((Libs INNER JOIN T_Cards ON T_Cards.Id_Lib = Libs.Id)
-INNER JOIN Books ON T_Cards.Id_Book = Books.Id)
-GROUP BY Libs.FirstName + Libs.LastName
+SELECT Libs.FirstName + Libs.LastName LibsFullName, 
+((SELECT COUNT(*)
+FROM S_Cards
+WHERE S_Cards.Id_Lib = Libs.Id
+GROUP BY S_Cards.Id_Lib) +
+(SELECT COUNT(*)
+FROM T_Cards
+WHERE T_Cards.Id_Lib = Libs.Id
+GROUP BY T_Cards.Id_Lib)) AS Total
+FROM Libs
 
 
 
